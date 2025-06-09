@@ -1,14 +1,10 @@
 package simplepaint.util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 
 import simplepaint.model.*;
 
+import java.awt.Color;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,9 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShapeSerializer {
+
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Color.class, new ColorAdapter())
+            .setPrettyPrinting()
+            .create();
+
     public static void saveToJson(List<Shape> shapes) {
         try (FileWriter writer = new FileWriter("shapes.json")) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
             JsonArray array = new JsonArray();
             for (Shape shape : shapes) {
                 JsonObject obj = gson.toJsonTree(shape).getAsJsonObject();
@@ -36,7 +37,6 @@ public class ShapeSerializer {
         List<Shape> shapes = new ArrayList<>();
         try (FileReader reader = new FileReader("shapes.json")) {
             JsonArray array = JsonParser.parseReader(reader).getAsJsonArray();
-            Gson gson = new Gson();
             for (JsonElement el : array) {
                 JsonObject obj = el.getAsJsonObject();
                 String type = obj.get("type").getAsString();
